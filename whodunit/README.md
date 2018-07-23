@@ -2,11 +2,13 @@
 
 ## What's `stdint.h`?
 
-TODO
+It is a header file for  a library that allows for programmers to write more portable code, by providing a set of typedefs that specify
+exact-width integer types.
 
 ## What's the point of using `uint8_t`, `uint32_t`, `int32_t`, and `uint16_t` in a program?
 
-TODO
+By declaring these types of integers, it makes it clear that you want to utilize the data in a certain way, whether it being, 8, 32, 16,
+or 24 bits in width
 
 ## How many bytes is a `BYTE`, a `DWORD`, a `LONG`, and a `WORD`, respectively?
 
