@@ -1,12 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "bmp.h"
-
+#include "bmp.h" 
 int main (int argc, char *argv[]){
 
     if (argc != 3){
-
+        // standard print out error
         fprintf(stderr, "Usage: Error with command line arg. amounts");
 
         return 1;
@@ -18,9 +17,10 @@ int main (int argc, char *argv[]){
     char *infile = argv[1];
     char *outfile = argv[2];
 
-    // Now try to open input file using strings created above
+    
     FILE *inptr = fopen(infile, "r");   // Maybe "r" meaning reader file
-
+    
+    // default value for FILE *inptr is == NULL, so if it didnt open, it would be set to NULL
     if (inptr == NULL){
 
         fprintf(stderr, "Could not open %s.\n", infile);
@@ -44,16 +44,15 @@ int main (int argc, char *argv[]){
 
 
 
-    // Area below is where I need to gain more understanding
-
     // read infile's BITMAPFILEHEADER
-    BITMAPFILEHEADER bf;
-    fread(&bf, sizeof(BITMAPFILEHEADER), 1, inptr);
+    BITMAPFILEHEADER bf; // bf is a variable
+    fread(&bf, sizeof(BITMAPFILEHEADER), 1, inptr); // opens locker and reads through memory of BITMAPFILEHEADER
 
     // read infile's BITMAPINFOHEADER
-    BITMAPINFOHEADER bi;
-    fread(&bi, sizeof(BITMAPINFOHEADER), 1, inptr);
-
+    BITMAPINFOHEADER bi; // bi is a variable
+    fread(&bi, sizeof(BITMAPINFOHEADER), 1, inptr); // opens locker and reads through memory of BITMAPINFOHEADER
+    
+    // Checks if its a BITMAPFILE through examining each type within the 
     // ensure infile is (likely) a 24-bit uncompressed BMP 4.0
     if (bf.bfType != 0x4d42 || bf.bfOffBits != 54 || bi.biSize != 40 ||
         bi.biBitCount != 24 || bi.biCompression != 0)
@@ -84,16 +83,24 @@ int main (int argc, char *argv[]){
 
             // read RGB triple from infile
             fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
+            ///////
+            /// After you read you have to write it
 
-            // write RGB triple to outfile
+            if (triple.rgbtRed == 0xff){
+
+                triple.rgbtBlue = 0xff;
+                triple.rgbtGreen = 0xff;
+            }
+
+           
             fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
         }
-
-        // File position indicator
 
         // skip over padding, if any
         fseek(inptr, padding, SEEK_CUR);
 
+        // Padding to make it a multiple of 4// Each RGBTRIPLE is made up of 3// so however how many RGBTRIPLES * 3 = number
+        // number has to be a multiple of 4
         // then add it back (to demonstrate how)
         for (int k = 0; k < padding; k++)
         {
