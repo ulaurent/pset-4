@@ -5,15 +5,15 @@
 
 int main (int argc, char *argv[]){
 
-    if (argc != 3)
+    if (argc != 4)
     {
         fprintf (stderr, "User: Command line only accepts three args.\n");
         return 1;
     }
 
-    int n = (int)(argv[0] - '0');
-    char *infile = argv[1];
-    char *outfile = argv[2];
+    int n = (int)(argv[1] - '0');
+    char *infile = argv[2];
+    char *outfile = argv[3];
 
     if( n > 100 && n % 2 != 0){
 
@@ -60,6 +60,75 @@ int main (int argc, char *argv[]){
         return 4;
     }
 
+    // We will probably have to revise the padding formula
+    // determine padding for scanlines
+    int padding = (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
 
+    bi.biWidth *= n;
+    bi.biHeight *= n;
+
+    bi.biSizeImage = ((sizeof(RGBTRIPLE) * bi.biWidth) + padding) * abs(bi.biHeight);
+    bf.bfSize = bi.biSizeImage + sizeof(BITMAPFILEHEADER) + sizeof (BITMAPINFOHEADER);
+
+    // write outfile's BITMAPFILEHEADER
+    fwrite(&bf, sizeof(BITMAPFILEHEADER), 1, outptr);
+
+    // write outfile's BITMAPINFOHEADER
+    fwrite(&bi, sizeof(BITMAPINFOHEADER), 1, outptr);
+
+
+
+    // iterate over infile's scanlines
+    // abs is the absolute value inorder to always return a psotive number
+    for (int i = 0, biHeight = abs(bi.biHeight); i < biHeight; i++)
+    {
+        // iterate over pixels in scanline
+        for (int j = 0; j < bi.biWidth; j++)
+        {
+            // temporary storage
+            RGBTRIPLE triple;
+
+            // read RGB triple from infile
+            fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
+
+            triple.rgbtBlue *= n;
+            triple.rgbtGreen *= n;
+            triple.rgbtRed *= n;
+
+            // write RGB triple to outfile
+            fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
+
+            for (i = n; i <= n; i ++){
+
+                fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
+
+                triple.rgbtBlue *= n;
+                triple.rgbtGreen *= n;
+                triple.rgbtRed *= n;
+
+                // write RGB triple to outfile
+                fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
+
+            }
+        }
+
+        // skip over padding, if any
+        fseek(inptr, padding, SEEK_CUR);
+
+        // then add it back (to demonstrate how)
+        for (int k = 0; k < padding; k++)
+        {
+            fputc(0x00, outptr);
+        }
+    }
+
+    // close infile
+    fclose(inptr);
+
+    // close outfile
+    fclose(outptr);
+
+    // success
+    return 0;
 
 }
