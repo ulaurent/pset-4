@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <cs50.h>
 
 #include "bmp.h"
@@ -11,7 +12,7 @@ int main (int argc, char *argv[]){
         return 1;
     }
 
-    int n = (int)(argv[1] - '0');
+    int n = (atoi)(argv[1]);
     char *infile = argv[2];
     char *outfile = argv[3];
 
@@ -91,25 +92,17 @@ int main (int argc, char *argv[]){
             // read RGB triple from infile
             fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
 
-            triple.rgbtBlue *= n;
-            triple.rgbtGreen *= n;
-            triple.rgbtRed *= n;
+            // triple.rgbtBlue *= n;
+            // triple.rgbtGreen *= n;
+            // triple.rgbtRed *= n;
 
             // write RGB triple to outfile
+            for(int k = 1; k <= n; k++){
+
             fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
 
-            for (i = n; i <= n; i ++){
-
-                fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
-
-                triple.rgbtBlue *= n;
-                triple.rgbtGreen *= n;
-                triple.rgbtRed *= n;
-
-                // write RGB triple to outfile
-                fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
-
             }
+
         }
 
         // skip over padding, if any
