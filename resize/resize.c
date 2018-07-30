@@ -65,10 +65,15 @@ int main (int argc, char *argv[]){
     // determine padding for scanlines
     int padding = (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
 
+    long initWidth = bi.biWidth;
+    long initHeight = abs(bi.biHeight);
+
     bi.biWidth *= n;
     bi.biHeight *= n;
 
-    bi.biSizeImage = ((sizeof(RGBTRIPLE) * bi.biWidth) + padding) * abs(bi.biHeight);
+    int paddingOut = (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
+
+    bi.biSizeImage = ((sizeof(RGBTRIPLE) * bi.biWidth) + paddingOut) * labs(bi.biHeight);
     bf.bfSize = bi.biSizeImage + sizeof(BITMAPFILEHEADER) + sizeof (BITMAPINFOHEADER);
 
     // write outfile's BITMAPFILEHEADER
@@ -81,10 +86,10 @@ int main (int argc, char *argv[]){
 
     // iterate over infile's scanlines
     // abs is the absolute value inorder to always return a psotive number
-    for (int i = 0, biHeight = abs(bi.biHeight); i < biHeight; i++)
+    for (int i = 0; i < initHeight; i++)
     {
         // iterate over pixels in scanline
-        for (int j = 0; j < bi.biWidth; j++)
+        for (int j = 0; j < initWidth; j++)
         {
             // temporary storage
             RGBTRIPLE triple;
@@ -92,27 +97,29 @@ int main (int argc, char *argv[]){
             // read RGB triple from infile
             fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
 
-            // triple.rgbtBlue *= n;
-            // triple.rgbtGreen *= n;
-            // triple.rgbtRed *= n;
-
             // write RGB triple to outfile
             for(int k = 1; k <= n; k++){
+                fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
+                }
+            // go to next line in output file
+            // move cursor of in file
+            // write first linf or in file to output file again
 
-            fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
-
-            }
 
         }
 
         // skip over padding, if any
-        fseek(inptr, padding, SEEK_CUR);
+        fseek(inptr, padding, SEEK_CUR); // file your using, amount you want to skip, where the cursos is currently pointing
 
         // then add it back (to demonstrate how)
-        for (int k = 0; k < padding; k++)
+        for (int k = 0; k < paddingOut; k++)
         {
             fputc(0x00, outptr);
         }
+
+        // Change height of output file
+        // reiterate over fread of in file
+        // write first line again
     }
 
     // close infile
