@@ -1,75 +1,63 @@
-/*program used to recover deleted jpeg files*/
+/* Program used to recover deleted jpeg files */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <cs50.h>
 #include <stdint.h>
+#include <stdio.h>
 
-int main (int argc, char *argv[]){
+
+int main(int argc, char *argv[])
+{
 
     if (argc != 2)
-
     {
-        fprintf(stderr, "User: Check number of arguments\n");
+        printf("Usage: ./recover filename\ns");
     }
 
-    return 1;
+    //Get file from command line args
+    char *raw_file = argv[1];
 
-    char *inphotofile = argv[1];
-
-    FILE *raw_file = fopen(inphotofile, "r");
-
-    if(inphotofile == NULL)
-
+    // open input file
+    FILE *file = fopen(raw_file, "r");
+    if (file == NULL)
     {
-        fprintf(stderr, "User: file could not open");
-        return 2;
+        fprintf(stderr, "Could not open %s.\n", file1);
+        return 1;
     }
 
+    //BYTE type is used to create a BYTE array
     typedef uint8_t BYTE;
     BYTE buffer[512];
     FILE *img = NULL;
-    char *filename;
-    int img_count = 0;
+    int img_counter = 0;
 
+    // Remember that filename is a string with 7 characters
+    char filename[8];
 
-    // fread the raw_file only while a block is equal to 512, if its not equal to 512, thats the end of the file
-   while(fread(buffer, 1, 512, raw_file) == 512) {
-
-       if (buffer[0] == 0xff && buffer[1] == 0xd8 && buffer[2] == 0xff && (buffer[3] & 0xf0) == 0xe0 )
+    // If fread returns a value that is not 512, it signifies EOF
+    while (fread(&buffer, 1, 512, file) == 512)
+    {
+        // Check for JPEG header
+        if (buffer[0] == 0xff && buffer[1] == 0xd8 && buffer[2] == 0xff && (buffer[3] & 0xf0) == 0xe0)
         {
-            // If all this passes to be true, you hit the beginning of a new JPEG
-            printf("true: new jpeg photo");
-
-            //Now write to new file
-            // If you hit a header && the file img is not equal to NULL, you know that your hitting a new file
-            if(img != NULL)
+            // If header exists, check if a photo has been found yet
+            if (img != NULL)
             {
-                fclose (img);
+                // If a photo was already found, close it before writing a new jpg file
+                fclose(img);
             }
 
-            // string print stores in a string of char's called 'filename'
-            // imgcount increases the count of the name of the file so it can save a new file each time
-            sprintf(filename, "%03i.jpg", img_count); // creates filename for new jpeg and stores in filename variable
-            img_count ++;
-            // fopen the image
-            img = fopen(filename, "w"); // opens the new file created to write
-
+            sprintf(filename, "%03i.jpg", img_counter);
+            img_counter++;
+            img = fopen(filename, "w");
             fwrite(buffer, 1, 512, img);
         }
-
+        // If no header is read in this block, then write it to the current jpg
         else
         {
-            if(img != NULL)
+            //  Make sure we have opened a file already
+            if (img != NULL)
             {
-                // Make sure we have opened a file already
                 fwrite(buffer, 1, 512, img);
             }
-
         }
-
-   }
-
-
-
+    }
 }
