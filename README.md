@@ -1,6 +1,8 @@
 # pset-4
 
-whodunit:
+Whodunit
+
+
 Implement a program called whodunit that reveals Mr. Boddy’s drawing in such a way that you can recognize whodunit.
 
 Implement your program in a file called whodunit.c in a directory called whodunit.
@@ -17,7 +19,9 @@ If the input file is not a 24-bit uncompressed BMP 4.0, your program should info
 
 Upon success, main should 0.
 
-Recover:
+Recover
+
+
 Implement a program called recover that recovers JPEGs from a forensic image.
 
 Implement your program in a file called recover.c in a directory called recover.
@@ -28,7 +32,9 @@ If the forensic image cannot be opened for reading, your program should inform t
 
 Your program, if it uses malloc, must not leak any memory.
 
-Resize:
+Resize
+
+
 Implement a program called resize that resizes (i.e., enlarges) 24-bit uncompressed BMPs by a factor of n.
 
 Implement your program in a file called resize.c in a directory called resize.
